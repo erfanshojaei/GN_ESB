@@ -10,14 +10,14 @@ camera_pair = ('169.254.207.1', '169.254.207.2')
 
 # Define crop coordinates for each camera (example coordinates)
 crop_coordinates = {
-    '169.254.207.1': (100, 100, 500, 500),  # x, y, width, height for Camera 1
-    '169.254.207.2': (200, 200, 500, 500),  # x, y, width, height for Camera 2
+    '169.254.207.1': (700, 500, 750, 1000),  # x, y, width, height for Camera 1
+    '169.254.207.2': (700, 500, 750, 1000),  # x, y, width, height for Camera 2
 }
 
 # Define ROI coordinates for each camera (example coordinates)
 roi_coordinates = {
-    '169.254.207.1': (200, 200, 200, 200),  # x, y, width, height for ROI Camera 1
-    '169.254.207.2': (300, 300, 200, 200),  # x, y, width, height for ROI Camera 2
+    '169.254.207.1': (200, 0, 100, 1000),  # x, y, width, height for ROI Camera 1
+    '169.254.207.2': (200, 0, 100, 1000),  # x, y, width, height for ROI Camera 2
 }
 
 # Flag to check if the tree is planted vertically (True only if centroids are in ROI for both cameras)
@@ -28,20 +28,30 @@ for ip in camera_pair:
         # Grab frame from the camera
         frame = grab_frame_from_camera(ip)
 
+        # Add a short delay to ensure the frame is displayed properly
+        cv2.waitKey(1)
+
         # Check if the frame is valid
-        if frame is not None:
-            # Print the original frame size
+        if frame is not None and frame.size > 0:
             print(f"Original frame size from camera {ip}: {frame.shape[0]} x {frame.shape[1]}")
 
-            # Display the original frame
+            # Create and display the original frame window
+            cv2.namedWindow(f"Original Camera {ip}", cv2.WINDOW_NORMAL)  # Ensure window is movable and resizable
             cv2.imshow(f"Original Camera {ip}", frame)
+            cv2.resizeWindow(f"Original Camera {ip}", 800, 600)
+            cv2.moveWindow(f"Original Camera {ip}", 100, 100)  # Move to specific position
+            cv2.waitKey(1)  # Allow some time for rendering
 
             # Crop the frame
             coordinates = crop_coordinates[ip]
             cropped_frame = crop_frame(frame, coordinates)
 
-            # Show the cropped frame
+            # Create and display the cropped frame window
+            cv2.namedWindow(f"Cropped Frame Camera {ip}", cv2.WINDOW_NORMAL)
             cv2.imshow(f"Cropped Frame Camera {ip}", cropped_frame)
+            cv2.resizeWindow(f"Cropped Frame Camera {ip}", 800, 600)
+            cv2.moveWindow(f"Cropped Frame Camera {ip}", 400, 100)  # Move to specific position
+            cv2.waitKey(1)
 
             # Convert cropped frame to binary and apply morphological opening
             opened_binary_image = process_image(cropped_frame)
@@ -63,8 +73,12 @@ for ip in camera_pair:
             if centroid != (0, 0):
                 cv2.circle(opened_binary_image_colored, centroid, 7, (0, 0, 255), -1)  # Red color for centroid
 
-            # Show the opened binary image with the ROI and centroid
+            # Create and display the binary image with ROI and centroid
+            cv2.namedWindow(f"Opened Binary Image with ROI Camera {ip}", cv2.WINDOW_NORMAL)
             cv2.imshow(f"Opened Binary Image with ROI Camera {ip}", opened_binary_image_colored)
+            cv2.resizeWindow(f"Opened Binary Image with ROI Camera {ip}", 800, 600)
+            cv2.moveWindow(f"Opened Binary Image with ROI Camera {ip}", 700, 100)  # Move to specific position
+            cv2.waitKey(1)
 
             # Check if the centroid is within the ROI for the current camera
             if not (x <= centroid[0] <= x + w and y <= centroid[1] <= y + h):
