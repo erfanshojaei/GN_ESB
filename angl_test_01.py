@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Load the image in color
-image = cv2.imread('f2.jpg')
+image = cv2.imread('f1.jpg')
 
 # Check if the image is loaded successfully
 if image is None:
